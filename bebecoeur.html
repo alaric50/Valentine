@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<title>Valentine 💖</title>
+<style>
+    html, body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        overflow: hidden;
+        font-family: 'Comic Sans MS', cursive;
+        background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+    }
+
+    h1 {
+        margin-top: 80px;
+        color: #fff;
+        text-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+    }
+
+    .container {
+        text-align: center;
+        position: relative;
+        z-index: 2;
+        color: white;
+    }
+
+    button {
+        font-size: 22px;
+        padding: 15px 30px;
+        margin: 20px;
+        border-radius: 12px;
+        border: none;
+        cursor: pointer;
+    }
+
+    #yes {
+        background-color: #ff4d6d;
+        color: white;
+    }
+
+    #no {
+        position: absolute;
+        background-color: #555;
+        color: white;
+    }
+
+    .heart {
+        position: fixed;
+        color: rgba(255, 0, 100, 0.6);
+        font-size: 20px;
+        animation: float 6s linear infinite;
+    }
+
+    @keyframes float {
+        from { transform: translateY(100vh); opacity: 1; }
+        to { transform: translateY(-10vh); opacity: 0; }
+    }
+
+    #screamer {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: black;
+        z-index: 9999;
+    }
+
+    #screamer img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    #message, #restaurants, #result {
+        display: none;
+        font-size: 28px;
+        margin-top: 30px;
+    }
+
+    select {
+        font-size: 22px;
+        padding: 10px;
+        border-radius: 8px;
+        border: none;
+    }
+
+    canvas {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 5;
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h1>💖 Bébé Coeur, veux-tu être ma Valentine ? 💖</h1>
+    <button id="yes">Oui 😍</button>
+    <button id="no">Non 😈</button>
+
+    <div id="message">🎉 Génial ! Allons au restaurant alors ! 🍷🍝</div>
+
+    <div id="restaurants">
+        <p>Choisis le restaurant 👀</p>
+        <select id="restaurantSelect">
+            <option value="">-- Choisir --</option>
+            <option value="papilla">Papilla</option>
+            <option value="flams">Flam's</option>
+            <option value="regent">Bistrot Régent</option>
+            <option value="etoiles">Un restaurant 3 étoiles</option>
+            <option value="crado">Chez Mister Crado</option>
+        </select>
+    </div>
+
+    <div id="result"></div>
+</div>
+
+<canvas id="confetti"></canvas>
+
+<div id="screamer">
+    <img src="https://i.imgur.com/8ZQZQZQ.jpg" alt="SCREAMER">
+    <audio id="scream-audio">
+        <source src="https://www.soundjay.com/human/sounds/scream-01.mp3" type="audio/mpeg">
+    </audio>
+</div>
+
+<script>
+/* Hearts */
+for (let i = 0; i < 40; i++) {
+    const heart = document.createElement("div");
+    heart.className = "heart";
+    heart.innerHTML = "❤";
+    heart.style.left = Math.random() * 100 + "vw";
+    heart.style.animationDuration = 3 + Math.random() * 5 + "s";
+    heart.style.fontSize = 16 + Math.random() * 30 + "px";
+    document.body.appendChild(heart);
+}
+
+/* Bouton NON qui fuit */
+const noBtn = document.getElementById("no");
+function moveNo() {
+    noBtn.style.left = Math.random() * (window.innerWidth - 120) + "px";
+    noBtn.style.top = Math.random() * (window.innerHeight - 60) + "px";
+}
+moveNo();
+noBtn.addEventListener("mouseenter", moveNo);
+
+/* Screamer */
+noBtn.addEventListener("click", () => {
+    document.getElementById("screamer").style.display = "block";
+    document.getElementById("scream-audio").play();
+});
+
+/* OUI */
+document.getElementById("yes").addEventListener("click", () => {
+    document.getElementById("message").style.display = "block";
+    document.getElementById("restaurants").style.display = "block";
+    startConfetti();
+});
+
+/* Restaurants */
+document.getElementById("restaurantSelect").addEventListener("change", e => {
+    const result = document.getElementById("result");
+    result.style.display = "block";
+
+    if (e.target.value === "papilla" || e.target.value === "flams") {
+        result.innerHTML = "😍 Excellent choix ! Réservation immédiate !";
+        result.style.color = "#00ffcc";
+    } else if (e.target.value !== "") {
+        result.innerHTML = "❌ Mauvais choix… essaie encore 😅";
+        result.style.color = "#ffdddd";
+    }
+});
+
+/* Confettis */
+const canvas = document.getElementById("confetti");
+const ctx = canvas.getContext("2d");
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let confettis = [];
+
+function startConfetti() {
+    for (let i = 0; i < 200; i++) {
+        confettis.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height - canvas.height,
+            r: Math.random() * 6 + 4,
+            d: Math.random() * 10 + 5,
+            color: `hsl(${Math.random()*360},100%,50%)`
+        });
+    }
+    animateConfetti();
+}
+
+function animateConfetti() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    confettis.forEach(c => {
+        ctx.beginPath();
+        ctx.fillStyle = c.color;
+        ctx.arc(c.x, c.y, c.r, 0, Math.PI * 2);
+        ctx.fill();
+        c.y += c.d * 0.5;
+        if (c.y > canvas.height) c.y = -10;
+    });
+    requestAnimationFrame(animateConfetti);
+}
+</script>
+
+</body>
+</html>
